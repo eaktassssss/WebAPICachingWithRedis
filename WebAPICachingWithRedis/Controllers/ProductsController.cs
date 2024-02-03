@@ -31,11 +31,39 @@ namespace WebAPICachingWithRedis.Controllers
             else
             {
                 cacheData = await _appDbContext.Products.ToListAsync();
-                var expityTime = DateTime.Now.AddSeconds(30);
+                var expityTime = DateTime.Now.AddSeconds(120);
                 _cacheService.SetCache<IEnumerable<Product>>("products", cacheData, expityTime);
                 return Ok(cacheData);
             }
 
+        }
+
+
+        [HttpPost]
+        [Route("products")]
+        public async Task<IActionResult> CreateAsync(Product product)
+        {
+            var addedProduct = await _appDbContext.Products.AddAsync(product);
+            var expityTime = DateTime.Now.AddSeconds(120);
+            await _appDbContext.SaveChangesAsync();
+            _cacheService.SetCache<Product>($"product{product.Id}", addedProduct.Entity, expityTime);
+            return Ok(addedProduct.Entity);
+        }
+
+
+        [HttpDelete]
+        [Route("remove")]
+        public async Task<IActionResult> RemoveAsync(int id)
+        {
+            var product = await _appDbContext.Products.FirstOrDefaultAsync(p => p.Id == id);
+            if (product != null)
+            {
+                _appDbContext.Remove(product);
+                _cacheService.RemoveCache($"product{product.Id}");
+                await _appDbContext.SaveChangesAsync();
+                return Ok();
+            }
+            return NotFound();
         }
     }
 }
