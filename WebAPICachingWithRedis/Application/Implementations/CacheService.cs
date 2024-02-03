@@ -24,6 +24,7 @@ namespace WebAPICachingWithRedis.Application.Implementations
             try
             {
                 ConnectionMultiplexer connectionMultiplexer = ConnectionMultiplexer.Connect(_configurationMonitor.RedisConnectionString);
+                RegisterEvents();
 
                 return connectionMultiplexer;
             }
@@ -76,17 +77,17 @@ namespace WebAPICachingWithRedis.Application.Implementations
 
         private void _connectionMultiplexer_ConnectionRestored(object? sender, ConnectionFailedEventArgs e)
         {
-            // Bağlantı yeniden kurulduğunda yapılacak işlemler
+            //Connection Restored
         }
 
         private void _connectionMultiplexer_ConnectionFailed(object? sender, ConnectionFailedEventArgs e)
         {
-            // Bağlantı hatası olduğunda yapılacak işlemler
+            //Connection Faild
         }
 
         private void _connectionMultiplexer_ErrorMessage(object? sender, RedisErrorEventArgs e)
         {
-            // Hata mesajı alındığında yapılacak işlemler
+            //Exception Message
         }
     }
 }
